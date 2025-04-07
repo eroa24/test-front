@@ -12,7 +12,7 @@
             :imageUrl="product.image"
           >
             <template #footer>
-              <Button variant="primary" size="sm">Agregar</Button>
+              <Button variant="primary" size="sm" @click="irAPago(product.id)">Agregar</Button>
             </template>
           </Card>
         </div>
@@ -23,8 +23,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
+
+const router = useRouter()
 
 const products = ref([
   {
@@ -56,6 +59,10 @@ const products = ref([
     image: 'https://picsum.photos/500/300?random=4',
   },
 ])
+
+const irAPago = (productId: number) => {
+  router.push(`/payment/card/${productId}`)
+}
 </script>
 
 <style scoped>
@@ -75,7 +82,7 @@ h1 {
 
 .products-container {
   width: 100%;
-  max-width: 100%; /* Asegura que se use todo el ancho */
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -92,7 +99,6 @@ h1 {
   width: 100%;
 }
 
-/* Tablet: 2 columnas */
 @media (min-width: 768px) {
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
