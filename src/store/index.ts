@@ -1,19 +1,23 @@
 import { createStore } from 'vuex'
 
+interface Product {
+  id: number
+  name: string
+  price: number
+  stock: number
+  description: string
+}
+
+interface Transaction {
+  status: 'PENDING' | 'COMPLETED' | 'FAILED'
+  amount: number
+  cardInfo: any
+  deliveryInfo: any
+}
+
 export interface State {
-  product: {
-    id: number
-    name: string
-    price: number
-    stock: number
-    description: string
-  } | null
-  transaction: {
-    status: 'PENDING' | 'COMPLETED' | 'FAILED'
-    amount: number
-    cardInfo: any
-    deliveryInfo: any
-  } | null
+  product: Product | null
+  transaction: Transaction | null
 }
 
 export default createStore<State>({
@@ -22,18 +26,17 @@ export default createStore<State>({
     transaction: null,
   },
   getters: {
-    getProduct: (state) => state.product,
-    getTransaction: (state) => state.transaction,
+    getProduct: (state: State) => state.product,
+    getTransaction: (state: State) => state.transaction,
   },
   mutations: {
-    setProduct(state, product) {
+    setProduct(state: State, product: Product) {
       state.product = product
     },
-    setTransaction(state, transaction) {
+    setTransaction(state: State, transaction: Transaction) {
       state.transaction = transaction
     },
   },
-  actions: {
-    // Las acciones se implementarán según se necesiten
-  },
+  actions: {},
+  modules: {},
 })
