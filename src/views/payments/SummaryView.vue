@@ -3,39 +3,66 @@
     <div class="container">
       <h1 class="title">Resumen de pago</h1>
 
-      <div class="product-summary" v-if="producto">
+      <div class="product-summary" v-if="product">
         <div class="product">
-          <img :src="producto.image" :alt="producto.name" />
+          <img :src="product.image" :alt="product.name" />
         </div>
         <div class="product-info">
-          <h2>{{ producto.name }}</h2>
-          <p class="price">{{ formatPrice(producto.price) }}</p>
+          <h2>{{ product.name }}</h2>
+          <p class="price">{{ formatPrice(product.price) }}</p>
         </div>
       </div>
 
-      <div class="detail-payment">
-        <h3>Detalles del pago</h3>
-        <div class="detail-item">
-          <span>Subtotal:</span>
-          <span>{{ formatPrice(producto?.price || 0) }}</span>
+      <div class="summary-sections">
+        <!-- Payment Details -->
+        <div class="detail-payment">
+          <h3>Payment Details</h3>
+          <div class="card-info" v-if="paymentData.cardData">
+            <p>
+              <strong>Card Number:</strong> **** **** ****
+              {{ getLastFourDigits(paymentData.cardData.cardNumber) }}
+            </p>
+            <p><strong>Card Holder:</strong> {{ paymentData.cardData.cardName }}</p>
+            <p><strong>Expiry Date:</strong> {{ paymentData.cardData.expiryDate }}</p>
+          </div>
+          <div class="detail-item">
+            <span>Subtotal:</span>
+            <span>{{ formatPrice(product?.price || 0) }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Base Fee:</span>
+            <span>{{ formatPrice(5000) }}</span>
+          </div>
+          <div class="detail-item">
+            <span>Shipping Fee:</span>
+            <span>{{ formatPrice(10000) }}</span>
+          </div>
+          <div class="detail-item total">
+            <span>Total:</span>
+            <span>{{ formatPrice((product?.price || 0) + 5000 + 10000) }}</span>
+          </div>
         </div>
-        <div class="detail-item">
-          <span>Tarifa base:</span>
-          <span>{{ formatPrice(5000) }}</span>
-        </div>
-        <div class="detail-item">
-          <span>Tarifa de envío:</span>
-          <span>{{ formatPrice(10000) }}</span>
-        </div>
-        <div class="detail-item total">
-          <span>Total:</span>
-          <span>{{ formatPrice((producto?.price || 0) + 5000 + 10000) }}</span>
+
+        <!-- Delivery Details Section -->
+        <div class="detail-delivery">
+          <h3>Delivery Information</h3>
+          <div class="delivery-info" v-if="paymentData.deliveryData">
+            <p><strong>Name:</strong> {{ paymentData.deliveryData.fullName }}</p>
+            <p><strong>Email:</strong> {{ paymentData.deliveryData.email }}</p>
+            <p><strong>Phone:</strong> {{ paymentData.deliveryData.phone }}</p>
+            <p><strong>Address:</strong> {{ paymentData.deliveryData.address }}</p>
+            <p><strong>City:</strong> {{ paymentData.deliveryData.city }}</p>
+            <p><strong>Postal Code:</strong> {{ paymentData.deliveryData.postalCode }}</p>
+            <p v-if="paymentData.deliveryData.deliveryInstructions">
+              <strong>Instructions:</strong> {{ paymentData.deliveryData.deliveryInstructions }}
+            </p>
+          </div>
         </div>
       </div>
 
       <div class="actions">
-        <Button variant="secondary" @click="backToCard">Volver</Button>
-        <Button variant="primary" @click="processPayment" :loading="loading"> Pagar </Button>
+        <Button variant="secondary" @click="backToCard">Back</Button>
+        <Button variant="primary" @click="processPayment" :loading="loading"> Pay </Button>
       </div>
     </div>
   </div>
@@ -49,25 +76,49 @@ import Button from '../../components/ui/Button.vue'
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
-const producto = ref(null)
+const product = ref(null)
+const paymentData = ref({
+  cardData: null,
+  deliveryData: null,
+})
 
 onMounted(() => {
   const productId = route.params.productId
-  producto.value = {
+  product.value = {
     id: productId,
-    name: 'Producto ' + productId,
-    description: 'Descripción del producto',
+    name: 'Product ' + productId,
+    description: 'Product description',
     price: 150000,
     image: `https://picsum.photos/500/300?random=${productId}`,
+  }
+
+  // Get payment data from localStorage
+  const storedData = localStorage.getItem('paymentData')
+  if (storedData) {
+    try {
+      const parsedData = JSON.parse(storedData)
+      paymentData.value = {
+        cardData: parsedData.cardData || null,
+        deliveryData: parsedData.deliveryData || null,
+      }
+    } catch (error) {
+      console.error('Error parsing payment data:', error)
+    }
   }
 })
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('es-CO', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0,
   }).format(price)
+}
+
+const getLastFourDigits = (cardNumber: string) => {
+  if (!cardNumber) return '****'
+  const cleaned = cardNumber.replace(/\s/g, '')
+  return cleaned.slice(-4)
 }
 
 const backToCard = () => {
@@ -83,7 +134,7 @@ const processPayment = async () => {
 
     router.push(`/payment/status/${transactionId}`)
   } catch (error) {
-    console.error('Error al procesar el pago:', error)
+    console.error('Error processing payment:', error)
   } finally {
     loading.value = false
   }
@@ -99,7 +150,7 @@ const processPayment = async () => {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -121,7 +172,7 @@ const processPayment = async () => {
   box-shadow: var(--shadow-sm);
 }
 
-.product-image {
+.product {
   width: 80px;
   height: 80px;
   border-radius: var(--border-radius-md);
@@ -150,18 +201,38 @@ const processPayment = async () => {
   margin: 0;
 }
 
-.detail-payment {
+.summary-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detail-payment,
+.detail-delivery {
   background-color: white;
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
-  margin-bottom: 2rem;
   box-shadow: var(--shadow-sm);
 }
 
-.detail-payment h3 {
+.detail-payment h3,
+.detail-delivery h3 {
   margin-top: 0;
   margin-bottom: 1rem;
   color: var(--color-dark);
+}
+
+.card-info,
+.delivery-info {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card-info p,
+.delivery-info p {
+  margin: 0.5rem 0;
 }
 
 .detail-item {
@@ -192,7 +263,7 @@ const processPayment = async () => {
     padding: 0.5rem;
   }
 
-  .product {
+  .product-summary {
     flex-direction: column;
     text-align: center;
   }
@@ -200,6 +271,11 @@ const processPayment = async () => {
   .product {
     margin-right: 0;
     margin-bottom: 1rem;
+  }
+
+  .summary-sections {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .actions {

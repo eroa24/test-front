@@ -20,19 +20,13 @@
 body {
   background-color: var(--color-white);
   margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-* {
+  padding: 10px;
   box-sizing: border-box;
 }
 
 .app {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  width: 100%;
 }
 
 .navigation {
@@ -46,7 +40,9 @@ body {
 
 .nav-container {
   width: 100%;
-  padding: 0 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
   height: 64px;
   display: flex;
   align-items: center;
@@ -68,11 +64,18 @@ body {
 .main-content {
   flex: 1;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 768px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+  }
   .nav-container {
     height: 56px;
+    padding: 0 1rem;
   }
 }
 </style>
