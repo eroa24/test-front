@@ -1,11 +1,14 @@
 <template>
-  <div class="payment-container">
-    <div class="payment-card">
+  <div class="payment-card">
+    <div class="container">
       <h1 class="title">Payment Information</h1>
 
       <div class="product-summary" v-if="product">
         <div class="product-image">
-          <img :src="product.image" :alt="product.name" />
+          <img :src="product.image" :alt="product.name" @error="handleImageError" />
+          <div v-if="!hasValidImage" class="no-image">
+            <span>No image available</span>
+          </div>
         </div>
         <div class="product-info">
           <h2>{{ product.name }}</h2>
@@ -13,35 +16,8 @@
         </div>
       </div>
 
-      <div class="tabs-container mobile-only">
-        <div class="tabs">
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'payment' }"
-            @click="activeTab = 'payment'"
-          >
-            Payment
-          </button>
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'delivery' }"
-            @click="activeTab = 'delivery'"
-          >
-            Delivery
-          </button>
-        </div>
-      </div>
-
-      <div class="forms-container">
-        <div class="form-container" :class="{ 'desktop-only': activeTab !== 'payment' }">
-          <h2 class="section-title">Card Information</h2>
-          <CardPaymentForm ref="cardForm" />
-        </div>
-
-        <div class="form-container" :class="{ 'desktop-only': activeTab !== 'delivery' }">
-          <h2 class="section-title">Delivery Information</h2>
-          <DeliveryForm ref="deliveryForm" />
-        </div>
+      <div class="form-container">
+        <CardPaymentForm ref="cardForm" />
       </div>
 
       <div class="actions">
@@ -57,24 +33,35 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Button from '../../components/ui/Button.vue'
 import CardPaymentForm from '../../components/payment/CardPaymentForm.vue'
-import DeliveryForm from '../../components/payment/DeliveryForm.vue'
 
 const router = useRouter()
 const route = useRoute()
 const cardForm = ref<InstanceType<typeof CardPaymentForm> | null>(null)
-const deliveryForm = ref<InstanceType<typeof DeliveryForm> | null>(null)
 const loading = ref(false)
 const product = ref(null)
-const activeTab = ref('payment')
+const hasValidImage = ref(true)
+
+const handleImageError = () => {
+  hasValidImage.value = false
+  if (product.value) {
+    product.value.image = '/images/not_image.jpg'
+  }
+}
 
 onMounted(() => {
   const productId = route.params.productId
-  product.value = {
-    id: productId,
-    name: 'Product ' + productId,
-    description: 'Product description',
-    price: 150000,
-    image: `https://picsum.photos/500/300?random=${productId}`,
+  const storedProduct = localStorage.getItem('selectedProduct')
+
+  if (storedProduct) {
+    const parsedProduct = JSON.parse(storedProduct)
+    if (parsedProduct.id === productId) {
+      product.value = parsedProduct
+      hasValidImage.value = true
+    } else {
+      router.push('/products')
+    }
+  } else {
+    router.push('/products')
   }
 })
 
@@ -91,27 +78,16 @@ const backToProducts = () => {
 }
 
 const continueToSummary = async () => {
-  if (!cardForm.value || !deliveryForm.value) return
+  if (!cardForm.value) return
 
   loading.value = true
   try {
-    const cardData = cardForm.value.formData
-    const deliveryData = deliveryForm.value.formData
-
-    const isDeliveryComplete = Object.values(deliveryData).every((value) => value.trim() !== '')
-
-    if (!isDeliveryComplete) {
-      activeTab.value = 'delivery'
-      loading.value = false
-      return
-    }
-
+    const formData = cardForm.value.formData
     localStorage.setItem(
       'paymentData',
       JSON.stringify({
         productId: route.params.productId,
-        cardData,
-        deliveryData,
+        cardData: formData,
         timestamp: new Date().toISOString(),
       }),
     )
@@ -126,7 +102,17 @@ const continueToSummary = async () => {
 </script>
 
 <style scoped>
+.payment-card {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 1rem;
+}
+
 .container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 .title {
@@ -134,7 +120,6 @@ const continueToSummary = async () => {
   margin-bottom: 2rem;
   text-align: center;
   font-size: clamp(1.5rem, 4vw, 2rem);
-  width: 100%;
 }
 
 .product-summary {
@@ -143,10 +128,8 @@ const continueToSummary = async () => {
   background-color: white;
   border-radius: var(--border-radius-lg);
   padding: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   box-shadow: var(--shadow-sm);
-  max-width: 600px;
-  width: 100%;
 }
 
 .product-image {
@@ -155,12 +138,30 @@ const continueToSummary = async () => {
   border-radius: var(--border-radius-md);
   overflow: hidden;
   margin-right: 1rem;
+  position: relative;
+  background-color: #f5f5f5;
 }
 
 .product-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.no-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  color: #666;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 0.5rem;
 }
 
 .product-info {
@@ -178,117 +179,42 @@ const continueToSummary = async () => {
   margin: 0;
 }
 
-.tabs-container {
-  margin-bottom: 1.5rem;
-}
-
-.tabs {
-  display: flex;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.tab-button {
-  flex: 1;
-  padding: 0.75rem;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tab-button.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
-}
-
-.forms-container {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-  width: 100%;
-}
-
 .form-container {
   background-color: white;
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
-  box-shadow: var(--shadow-lg);
-  width: 100%;
-}
-
-.section-title {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: var(--font-size-lg);
-  color: var(--color-dark);
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .actions {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  gap: 1rem;
 }
 
-.mobile-only {
-  display: none;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-  .payment-card {
-    padding: 1rem 0;
-  }
-
   .container {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 
-  .forms-container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .product-summary {
+    flex-direction: column;
+    text-align: center;
   }
 
-  .form-container {
-    padding: 1rem;
-  }
-
-  .mobile-only {
-    display: block;
-  }
-
-  .desktop-only {
-    display: none;
+  .product-image {
+    margin-right: 0;
+    margin-bottom: 1rem;
   }
 
   .actions {
-    padding: 5px;
-    display: flex;
-    gap: 20px;
+    flex-direction: column;
   }
 
   .actions button {
     width: 100%;
-  }
-}
-
-@media (min-width: 1024px) {
-  .payment-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-  .payment-card {
-    width: 60%;
-  }
-}
-
-@media (min-width: 1440px) {
-  .payment-card {
-    width: 60%;
   }
 }
 </style>

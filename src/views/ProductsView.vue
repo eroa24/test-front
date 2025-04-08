@@ -2,64 +2,63 @@
   <div class="productos">
     <h1>Productos</h1>
 
-    <div class="products-grid">
-      <div class="card-wrapper" v-for="product in products" :key="product.id">
-        <Card
-          :title="product.name"
-          :description="product.description"
-          :price="product.price"
-          :imageUrl="product.image"
-        >
-          <template #footer>
-            <Button variant="primary" size="sm" @click="irAPago(product.id)">Agregar</Button>
-          </template>
-        </Card>
+    <div class="products-container">
+      <div class="products-grid">
+        <div class="card-wrapper" v-for="product in products" :key="product.id">
+          <Card
+            :title="product.name"
+            :description="product.description"
+            :price="product.price"
+            :imageUrl="getProductImage(product)"
+          >
+            <template #footer>
+              <Button variant="primary" size="sm" @click="gotoPayment(product.id)">Agregar</Button>
+            </template>
+          </Card>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
 
 const router = useRouter()
+const store = useStore()
 
-const products = ref([
-  {
-    id: 1,
-    name: 'Producto 1',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.',
-    price: 150000,
-    image: 'https://picsum.photos/500/300?random=1',
-  },
-  {
-    id: 2,
-    name: 'Producto 2',
-    description: 'Dolorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.',
-    price: 250000,
-    image: 'https://picsum.photos/500/300?random=2',
-  },
-  {
-    id: 3,
-    name: 'Producto 3',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.',
-    price: 350000,
-    image: 'https://picsum.photos/500/300?random=3',
-  },
-  {
-    id: 4,
-    name: 'Producto 4',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.',
-    price: 450000,
-    image: 'https://picsum.photos/500/300?random=4',
-  },
-])
+const products = computed(() => store.getters.getProducts)
+const loading = computed(() => store.getters.isLoading)
+const error = computed(() => store.getters.getError)
 
-const irAPago = (productId: number) => {
-  router.push(`/payment/card/${productId}`)
+const getProductImage = (product: any) => {
+  return product.images?.[0]?.url || '/images/not_image.jpg'
+}
+
+onMounted(async () => {
+  await store.dispatch('fetchProducts')
+})
+
+const gotoPayment = (productId: string) => {
+  const product = products.value.find((p) => p.id === productId)
+  if (product) {
+    localStorage.setItem(
+      'selectedProduct',
+      JSON.stringify({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        image: getProductImage(product),
+      }),
+    )
+    router.push(`/payment/card/${productId}`)
+  }
 }
 </script>
 
