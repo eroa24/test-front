@@ -2,20 +2,18 @@
   <div class="productos">
     <h1>Productos</h1>
 
-    <div class="products-container">
-      <div class="products-grid">
-        <div class="card-wrapper" v-for="product in products" :key="product.id">
-          <Card
-            :title="product.name"
-            :description="product.description"
-            :price="product.price"
-            :imageUrl="product.image"
-          >
-            <template #footer>
-              <Button variant="primary" size="sm" @click="irAPago(product.id)">Agregar</Button>
-            </template>
-          </Card>
-        </div>
+    <div class="products-grid">
+      <div class="card-wrapper" v-for="product in products" :key="product.id">
+        <Card
+          :title="product.name"
+          :description="product.description"
+          :price="product.price"
+          :imageUrl="product.image"
+        >
+          <template #footer>
+            <Button variant="primary" size="sm" @click="irAPago(product.id)">Agregar</Button>
+          </template>
+        </Card>
       </div>
     </div>
   </div>
@@ -67,36 +65,39 @@ const irAPago = (productId: number) => {
 
 <style scoped>
 .productos {
-  width: 100%;
-  padding: clamp(1rem, 5vw, 2rem);
-  background-color: #f8f9fa;
-  box-sizing: border-box;
+  background-color: var(--color-white);
 }
 
 h1 {
   color: var(--color-dark);
-  margin-bottom: 2rem;
+  margin: 1rem 0;
   text-align: center;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
-}
-
-.products-container {
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
+  border-radius: 10px;
 }
 
 .products-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
   width: 100%;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .card-wrapper {
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .products-grid {
+    gap: 2rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -106,19 +107,27 @@ h1 {
 }
 
 @media (min-width: 1024px) {
+  h1 {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .productos {
+    background-color: var(--color-white);
+  }
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (min-width: 1440px) {
+  .productos {
+    overflow-x: hidden;
+    background-color: var(--color-white);
+    padding: 0 50px;
+  }
   .products-grid {
     grid-template-columns: repeat(4, 1fr);
-    padding: 0 2rem;
-  }
-
-  .card-wrapper {
-    max-width: 100%;
   }
 }
 </style>

@@ -99,19 +99,16 @@ defineEmits<{
   border-radius: var(--border-radius-lg);
 }
 
-/* Estado block */
 .button--block {
   display: flex;
   width: 100%;
 }
 
-/* Estado disabled */
 .button--disabled {
   opacity: 0.65;
   pointer-events: none;
 }
 
-/* Hover states */
 .button--primary:hover {
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0px var(--button-primary-shadow);
@@ -131,13 +128,11 @@ defineEmits<{
   color: var(--color-white);
 }
 
-/* Focus states */
 .button:focus {
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.15);
 }
 
-/* Active states */
 .button:active {
   transform: translateY(1px);
 }
