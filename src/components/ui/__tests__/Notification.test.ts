@@ -7,7 +7,7 @@ describe('Notification', () => {
   const defaultProps = {
     modelValue: true,
     message: 'Test message',
-    type: 'info',
+    type: 'info' as const,
     duration: 3000,
   }
 
@@ -47,7 +47,7 @@ describe('Notification', () => {
   })
 
   it('aplica la clase correcta según el tipo', async () => {
-    const types = ['error', 'success', 'info']
+    const types = ['error', 'success', 'info'] as const
 
     for (const type of types) {
       const wrapper = mount(Notification, {

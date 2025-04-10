@@ -78,16 +78,51 @@ import Notification from '../../components/ui/Notification.vue'
 import Loading from '../../components/ui/Loading.vue'
 import { TransactionService } from '../../api/services/transactions'
 
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  image: string
+}
+
+interface CardData {
+  cardNumber: string
+  expiryDate: string
+  cvc: string
+  cardName: string
+  installments: string
+  termsAccepted: boolean
+  dataProcessingAccepted: boolean
+}
+
+interface DeliveryData {
+  fullName: string
+  email: string
+  phone: string
+  address: string
+  city: string
+  postalCode: string
+  deliveryInstructions?: string
+}
+
+interface PaymentData {
+  quantity: number
+  cardData: CardData | null
+  deliveryData: DeliveryData | null
+}
+
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
-const product = ref(null)
+const product = ref<Product | null>(null)
 const showNotification = ref(false)
 const notificationMessage = ref('')
-const paymentData = ref({
+const notificationType = ref<'error' | 'success' | 'info'>('error')
+const paymentData = ref<PaymentData>({
+  quantity: 1,
   cardData: null,
   deliveryData: null,
-  quantity: 1,
 })
 
 const TAX_RATE = 0.19 // Iva 19%
@@ -118,11 +153,11 @@ onMounted(() => {
     }
   } else {
     product.value = {
-      id: productId,
+      id: Array.isArray(productId) ? productId[0] : productId,
       name: 'No product found',
       description: 'Product description',
       price: 9999999,
-      image: `https://picsum.photos/500/300?random=${productId}`,
+      image: `https://picsum.photos/500/300?random=${Array.isArray(productId) ? productId[0] : productId}`,
     }
   }
 
@@ -162,6 +197,13 @@ const backToCard = () => {
 const processPayment = async () => {
   loading.value = true
   try {
+    if (!paymentData.value.cardData || !paymentData.value.deliveryData) {
+      notificationMessage.value = 'Por favor complete todos los datos de pago y entrega'
+      showNotification.value = true
+      loading.value = false
+      return
+    }
+
     const transactionData = {
       productId: route.params.productId as string,
       quantity: paymentData.value.quantity,
@@ -178,7 +220,7 @@ const processPayment = async () => {
     const response = await TransactionService.createTransaction(transactionData)
 
     router.push(`/payment/status/${response.data.id}`)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error processing payment:', error)
     notificationMessage.value =
       error?.response?.data?.message || 'Ha ocurrido un error al procesar el pago'
