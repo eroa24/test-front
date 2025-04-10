@@ -1,7 +1,7 @@
 <template>
   <div class="card-payment-form">
     <div class="form-group">
-      <label for="cardNumber">Número de tarjeta</label>
+      <label for="cardNumber">Card Number</label>
       <div class="input-with-icon">
         <input
           id="cardNumber"
@@ -25,7 +25,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label for="expiryDate">Fecha de expiración</label>
+        <label for="expiryDate">Expiry Date</label>
         <input
           id="expiryDate"
           v-model="formData.expiryDate"
@@ -37,27 +37,77 @@
       </div>
 
       <div class="form-group">
-        <label for="cvv">CVV</label>
+        <label for="cvc">CVC</label>
         <input
-          id="cvv"
-          v-model="formData.cvv"
+          id="cvc"
+          v-model="formData.cvc"
           type="text"
           placeholder="123"
           maxlength="4"
-          @input="formatCVV"
+          @input="formatCVC"
         />
       </div>
     </div>
 
     <div class="form-group">
-      <label for="cardName">Nombre en la tarjeta</label>
+      <label for="cardName">Card Name</label>
       <input
         id="cardName"
         v-model="formData.cardName"
         type="text"
-        placeholder="Como aparece en la tarjeta"
+        placeholder="As it appears on the card"
         @input="formatCardName"
       />
+    </div>
+
+    <div class="form-group">
+      <label for="installments">Cuotas</label>
+      <div class="installments-selector">
+        <select id="installments" v-model="formData.installments" class="installments-select">
+          <option v-for="i in 12" :key="i" :value="String(i)">
+            {{ i }} {{ i === 1 ? 'cuota' : 'cuotas' }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="terms-container">
+      <div class="checkbox-group">
+        <input type="checkbox" id="termsAndConditions" v-model="formData.termsAccepted" />
+        <label for="termsAndConditions" class="checkbox-label">
+          Acepto haber leído los
+          <a
+            href="https://wompi.com/assets/downloadble/reglamento-Usuarios-Colombia.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            reglamentos
+          </a>
+          y la
+          <a
+            href="https://wompi.com/assets/downloadble/autorizacion-administracion-datos-personales.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            política de privacidad
+          </a>
+          para hacer este pago.
+        </label>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="dataProcessing" v-model="formData.dataProcessingAccepted" />
+        <label for="dataProcessing" class="checkbox-label">
+          Acepto la
+          <a
+            href="https://wompi.com/assets/downloadble/autorizacion-administracion-datos-personales.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            autorización para la administración de datos personales
+          </a>
+        </label>
+      </div>
     </div>
   </div>
 </template>
@@ -68,15 +118,25 @@ import { ref, computed } from 'vue'
 interface FormData {
   cardNumber: string
   expiryDate: string
-  cvv: string
+  cvc: string
   cardName: string
+  installments: string
+  termsAccepted: boolean
+  dataProcessingAccepted: boolean
 }
+
+const emit = defineEmits<{
+  (e: 'showNotification', message: string): void
+}>()
 
 const formData = ref<FormData>({
   cardNumber: '',
   expiryDate: '',
-  cvv: '',
+  cvc: '',
   cardName: '',
+  installments: '1',
+  termsAccepted: false,
+  dataProcessingAccepted: false,
 })
 
 const cardType = computed(() => {
@@ -102,9 +162,9 @@ const formatExpiryDate = (event: Event) => {
   formData.value.expiryDate = value
 }
 
-const formatCVV = (event: Event) => {
+const formatCVC = (event: Event) => {
   const input = event.target as HTMLInputElement
-  formData.value.cvv = input.value.replace(/\D/g, '')
+  formData.value.cvc = input.value.replace(/\D/g, '')
 }
 
 const formatCardName = (event: Event) => {
@@ -112,8 +172,20 @@ const formatCardName = (event: Event) => {
   formData.value.cardName = input.value.toUpperCase()
 }
 
+const validateTerms = () => {
+  if (!formData.value.termsAccepted || !formData.value.dataProcessingAccepted) {
+    emit(
+      'showNotification',
+      'Debes aceptar los términos y condiciones y la política de privacidad para continuar',
+    )
+    return false
+  }
+  return true
+}
+
 defineExpose({
   formData,
+  validateTerms,
 })
 </script>
 
@@ -175,8 +247,77 @@ input:focus {
   width: auto;
 }
 
+.installments-selector {
+  position: relative;
+  width: 100%;
+}
+
+.installments-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color 0.2s ease;
+  background-color: white;
+  appearance: none;
+  cursor: pointer;
+}
+
+.installments-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.installments-selector::after {
+  content: '';
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--color-text);
+  pointer-events: none;
+}
+
+.terms-container {
+  margin-top: 1rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.checkbox-group input[type='checkbox'] {
+  width: auto;
+  margin-right: 0.5rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  margin-bottom: 0;
+  color: var(--color-text);
+}
+
+.checkbox-label a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.checkbox-label a:hover {
+  text-decoration: underline;
+}
+
 /* Tablets */
-@media (max-width: 768px) {
+@media (max-width: 68px) {
   .card-payment-form {
     padding: 0.25rem;
   }
@@ -196,6 +337,11 @@ input:focus {
 
   .card-icon {
     height: 20px;
+  }
+
+  .installments-select {
+    padding: 0.625rem;
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -225,6 +371,18 @@ input:focus {
   .card-icon {
     height: 18px;
   }
+
+  .installments-select {
+    padding: 0.5rem;
+  }
+
+  .terms-container {
+    margin-top: 0.75rem;
+  }
+
+  .checkbox-group {
+    margin-bottom: 0.5rem;
+  }
 }
 
 /* Dispositivos muy pequeños */
@@ -234,6 +392,10 @@ input:focus {
   }
 
   input {
+    font-size: var(--font-size-xs);
+  }
+
+  .installments-select {
     font-size: var(--font-size-xs);
   }
 }

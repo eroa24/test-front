@@ -1,19 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Navbar from './components/layout/Navbar.vue'
+</script>
 
 <template>
-  <div class="app">
-    <nav class="navigation">
-      <div class="nav-container">
-        <div class="nav-brand">
-          <router-link to="/" class="brand-link">Mi Tienda</router-link>
-        </div>
-      </div>
-    </nav>
-
-    <main class="main-content">
-      <router-view></router-view>
-    </main>
-  </div>
+  <Navbar />
+  <router-view />
 </template>
 
 <style>

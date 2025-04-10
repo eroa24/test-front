@@ -12,7 +12,9 @@
             :imageUrl="getProductImage(product)"
           >
             <template #footer>
-              <Button variant="primary" size="sm" @click="gotoPayment(product.id)">Agregar</Button>
+              <Button variant="primary" size="sm" @click="gotoPayment(product.id)"
+                >Add to cart</Button
+              >
             </template>
           </Card>
         </div>
