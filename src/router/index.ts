@@ -1,21 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import ProductsView from '../views/ProductsView.vue'
+import CreditCardView from '../views/payments/CreditCardView.vue'
+import SummaryView from '../views/payments/SummaryView.vue'
+import FinalStatusView from '../views/payments/FinalStatusView.vue'
+import OrdersView from '../views/orders/OrdersView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      redirect: '/products',
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/products',
+      name: 'products',
+      component: ProductsView,
+    },
+    {
+      path: '/payment/card/:productId',
+      name: 'card',
+      component: CreditCardView,
+    },
+    {
+      path: '/payment/summary/:productId',
+      name: 'summary',
+      component: SummaryView,
+    },
+    {
+      path: '/payment/status/:transactionId',
+      name: 'status',
+      component: FinalStatusView,
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: OrdersView,
     },
   ],
 })
