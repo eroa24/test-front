@@ -69,7 +69,8 @@ describe('CardPaymentForm', () => {
 
     await cardNumberInput.setValue('4111111111111111')
 
-    expect(wrapper.vm.cardType).toBe('visa')
+    expect(wrapper.vm.formData.cardNumber).toBe('4111 1111 1111 1111')
+    expect(wrapper.find('img[alt="Visa"]').exists()).toBe(true)
   })
 
   it('detecta correctamente el tipo de tarjeta Mastercard', async () => {
@@ -78,7 +79,8 @@ describe('CardPaymentForm', () => {
 
     await cardNumberInput.setValue('5111111111111111')
 
-    expect(wrapper.vm.cardType).toBe('mastercard')
+    expect(wrapper.vm.formData.cardNumber).toBe('5111 1111 1111 1111')
+    expect(wrapper.find('img[alt="Mastercard"]').exists()).toBe(true)
   })
 
   it('muestra el icono de Visa cuando se detecta una tarjeta Visa', async () => {

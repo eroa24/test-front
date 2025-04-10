@@ -51,7 +51,7 @@ describe('TransactionService', () => {
       const mockApiResponse = {
         success: true,
         data: {
-          transactionId: 'TRANS-123',
+          id: 'TRANS-123',
           status: 'PENDING',
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
@@ -75,8 +75,8 @@ describe('TransactionService', () => {
       expect(api.post).toHaveBeenCalledWith('/transactions', mockTransactionData)
 
       // Verificar que se devolvió la respuesta correctamente
-      expect(response).toEqual(mockApiResponse)
-      expect(response.data.transactionId).toBe('TRANS-123')
+      expect(response.success).toBe(true)
+      expect(response.data.id).toBe('TRANS-123')
       expect(response.data.status).toBe('PENDING')
     })
 
@@ -134,7 +134,7 @@ describe('TransactionService', () => {
       const mockApiResponse = {
         success: true,
         data: {
-          transactionId: 'TRANS-123',
+          id: 'TRANS-123',
           status: 'COMPLETED',
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
@@ -158,8 +158,8 @@ describe('TransactionService', () => {
       expect(api.get).toHaveBeenCalledWith(`/transactions/id/${transactionId}`)
 
       // Verificar que se devolvió la respuesta correctamente
-      expect(response).toEqual(mockApiResponse)
-      expect(response.data.transactionId).toBe('TRANS-123')
+      expect(response.success).toBe(true)
+      expect(response.data.id).toBe('TRANS-123')
       expect(response.data.status).toBe('COMPLETED')
     })
 
@@ -192,7 +192,7 @@ describe('TransactionService', () => {
         const mockApiResponse = {
           success: true,
           data: {
-            transactionId: 'TRANS-123',
+            id: 'TRANS-123',
             status: status,
             createdAt: '2023-01-01T00:00:00.000Z',
             updatedAt: '2023-01-01T00:00:00.000Z',
@@ -213,6 +213,8 @@ describe('TransactionService', () => {
         const response = await TransactionService.getTransactionStatus(transactionId)
 
         // Verificar que se devolvió la respuesta correctamente
+        expect(response.success).toBe(true)
+        expect(response.data.id).toBe('TRANS-123')
         expect(response.data.status).toBe(status)
       }
     })

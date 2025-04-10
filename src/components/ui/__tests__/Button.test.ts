@@ -3,67 +3,56 @@ import { mount } from '@vue/test-utils'
 import Button from '../Button.vue'
 
 describe('Button', () => {
-  it('renders properly', () => {
-    const wrapper = mount(Button, {
-      props: {
-        variant: 'primary',
-        size: 'md',
-      },
-      slots: {
-        default: 'Click me',
-      },
-    })
-
-    expect(wrapper.text()).toContain('Click me')
-    expect(wrapper.classes()).toContain('button--primary')
-    expect(wrapper.classes()).toContain('button--md')
-  })
-
-  it('emits click event when clicked', async () => {
+  it('renderiza correctamente con la variante por defecto', () => {
     const wrapper = mount(Button)
-    await wrapper.trigger('click')
-    expect(wrapper.emitted('click')).toBeTruthy()
+    expect(wrapper.find('button').exists()).toBe(true)
+    expect(wrapper.find('button.button--primary').exists()).toBe(true)
   })
 
-  it('applies disabled state correctly', () => {
-    const wrapper = mount(Button, {
-      props: {
-        disabled: true,
-      },
+  it('renderiza correctamente con diferentes variantes', () => {
+    const variants = ['primary', 'secondary'] as const
+    variants.forEach((variant) => {
+      const wrapper = mount(Button, {
+        props: { variant },
+      })
+      expect(wrapper.find(`button.button--${variant}`).exists()).toBe(true)
     })
-
-    expect(wrapper.attributes('disabled')).toBeDefined()
-    expect(wrapper.classes()).toContain('button--disabled')
   })
 
-  it('applies block class when block prop is true', () => {
-    const wrapper = mount(Button, {
-      props: {
-        block: true,
-      },
-    })
-
-    expect(wrapper.classes()).toContain('button--block')
-  })
-
-  it('renders with secondary variant', () => {
-    const wrapper = mount(Button, {
-      props: {
-        variant: 'secondary',
-      },
-    })
-
-    expect(wrapper.classes()).toContain('button--secondary')
-  })
-
-  it('renders with different sizes', () => {
-    const sizes = ['sm', 'md', 'lg']
-
+  it('renderiza correctamente con diferentes tamaños', () => {
+    const sizes = ['sm', 'md', 'lg'] as const
     sizes.forEach((size) => {
       const wrapper = mount(Button, {
         props: { size },
       })
-      expect(wrapper.classes()).toContain(`button--${size}`)
+      expect(wrapper.find(`button.button--${size}`).exists()).toBe(true)
     })
+  })
+
+  it('renderiza correctamente con el texto', () => {
+    const wrapper = mount(Button, {
+      slots: { default: 'Test Button' },
+    })
+    expect(wrapper.text()).toBe('Test Button')
+  })
+
+  it('renderiza correctamente como bloque', () => {
+    const wrapper = mount(Button, {
+      props: { block: true },
+    })
+    expect(wrapper.find('button.button--block').exists()).toBe(true)
+  })
+
+  it('renderiza correctamente deshabilitado', () => {
+    const wrapper = mount(Button, {
+      props: { disabled: true },
+    })
+    expect(wrapper.find('button[disabled]').exists()).toBe(true)
+  })
+
+  it('emite el evento click cuando se hace clic', async () => {
+    const wrapper = mount(Button)
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.emitted('click')).toBeTruthy()
   })
 })

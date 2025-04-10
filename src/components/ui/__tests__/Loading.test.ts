@@ -38,4 +38,45 @@ describe('Loading', () => {
     expect(spinner.exists()).toBe(true)
     expect(spinner.element.parentElement).toBe(overlay.element)
   })
+
+  it('renderiza correctamente con el tamaño por defecto', () => {
+    const wrapper = mount(Loading, {
+      props: {
+        show: true,
+      },
+    })
+    expect(wrapper.find('.loading-spinner').exists()).toBe(true)
+  })
+
+  it('renderiza correctamente con diferentes tamaños', () => {
+    const sizes = ['sm', 'md', 'lg'] as const
+    sizes.forEach((size) => {
+      const wrapper = mount(Loading, {
+        props: {
+          show: true,
+          size,
+        },
+      })
+      expect(wrapper.find('.loading-spinner').exists()).toBe(true)
+    })
+  })
+
+  it('renderiza correctamente con el texto por defecto', () => {
+    const wrapper = mount(Loading, {
+      props: {
+        show: true,
+      },
+    })
+    expect(wrapper.find('.loading-overlay').exists()).toBe(true)
+  })
+
+  it('renderiza correctamente con texto personalizado', () => {
+    const wrapper = mount(Loading, {
+      props: {
+        show: true,
+        text: 'Cargando datos...',
+      },
+    })
+    expect(wrapper.find('.loading-overlay').exists()).toBe(true)
+  })
 })

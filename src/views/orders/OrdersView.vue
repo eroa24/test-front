@@ -18,12 +18,18 @@
         </div>
         <Button variant="primary" @click="searchOrders" :disabled="isLoading || !email">
           <template v-if="!isLoading">Buscar Órdenes</template>
-          <Loading v-else />
+          <Loading v-else :show="true" />
         </Button>
       </div>
     </div>
 
-    <Notification v-if="error" type="error" :message="error" @close="error = ''" />
+    <Notification
+      v-if="error"
+      v-model="showNotification"
+      type="error"
+      :message="error"
+      @close="error = ''"
+    />
 
     <OrderList v-if="orders.length > 0" :orders="orders" />
   </div>
@@ -43,6 +49,7 @@ const orders = ref<Order[]>([])
 const isLoading = ref(false)
 const error = ref('')
 const showError = ref(false)
+const showNotification = ref(false)
 
 const validateEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)

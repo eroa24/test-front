@@ -97,12 +97,21 @@ import CardPaymentForm from '../../components/payment/CardPaymentForm.vue'
 import DeliveryForm from '../../components/payment/DeliveryForm.vue'
 import Notification from '../../components/ui/Notification.vue'
 
+interface Product {
+  id: string | number
+  name: string
+  description: string
+  price: number
+  stock?: number
+  image: string
+}
+
 const router = useRouter()
 const route = useRoute()
 const cardForm = ref<InstanceType<typeof CardPaymentForm> | null>(null)
 const deliveryForm = ref<InstanceType<typeof DeliveryForm> | null>(null)
 const loading = ref(false)
-const product = ref(null)
+const product = ref<Product | null>(null)
 const activeTab = ref('payment')
 const showNotification = ref(false)
 const notificationMessage = ref('')
@@ -120,12 +129,13 @@ onMounted(() => {
       router.push('/products')
     }
   } else {
+    const productIdStr = Array.isArray(productId) ? productId[0] : productId
     product.value = {
-      id: productId,
+      id: productIdStr,
       name: 'No product found',
       description: 'Product description',
       price: 9999999,
-      image: `https://picsum.photos/500/300?random=${productId}`,
+      image: `https://picsum.photos/500/300?random=${productIdStr}`,
     }
   }
 
@@ -195,13 +205,13 @@ const continueToSummary = async () => {
 
     const isCardComplete = Object.entries(cardData).every(([key, value]) => {
       if (key === 'cardNumber') {
-        return value.replace(/\s/g, '').length === 16
+        return typeof value === 'string' && value.replace(/\s/g, '').length === 16
       }
       if (key === 'expiryDate') {
-        return value.length === 5
+        return typeof value === 'string' && value.length === 5
       }
       if (key === 'cvc') {
-        return value.length >= 3
+        return typeof value === 'string' && value.length >= 3
       }
       if (key === 'termsAccepted' || key === 'dataProcessingAccepted' || key === 'installments') {
         return true
@@ -216,10 +226,20 @@ const continueToSummary = async () => {
       return
     }
 
-    const requiredDeliveryFields = ['fullName', 'email', 'phone', 'address', 'city', 'postalCode']
-    const isDeliveryComplete = requiredDeliveryFields.every(
-      (field) => deliveryData[field] && deliveryData[field].trim() !== '',
-    )
+    const requiredDeliveryFields = [
+      'fullName',
+      'email',
+      'phone',
+      'address',
+      'city',
+      'postalCode',
+    ] as const
+    type DeliveryField = (typeof requiredDeliveryFields)[number]
+
+    const isDeliveryComplete = requiredDeliveryFields.every((field: DeliveryField) => {
+      const value = deliveryData[field]
+      return typeof value === 'string' && value.trim() !== ''
+    })
 
     if (!isDeliveryComplete) {
       notificationMessage.value = 'Por favor complete todos los campos obligatorios de entrega'
