@@ -3,6 +3,7 @@ import ProductsView from '../views/ProductsView.vue'
 import CreditCardView from '../views/payments/CreditCardView.vue'
 import SummaryView from '../views/payments/SummaryView.vue'
 import FinalStatusView from '../views/payments/FinalStatusView.vue'
+import OrdersView from '../views/orders/OrdersView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +31,11 @@ const router = createRouter({
       path: '/payment/status/:transactionId',
       name: 'status',
       component: FinalStatusView,
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: OrdersView,
     },
   ],
 })

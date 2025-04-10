@@ -1,42 +1,51 @@
 import { createStore } from 'vuex'
-
-interface Product {
-  id: number
-  name: string
-  price: number
-  stock: number
-  description: string
-}
-
-interface Transaction {
-  status: 'PENDING' | 'COMPLETED' | 'FAILED'
-  amount: number
-  cardInfo: any
-  deliveryInfo: any
-}
+import type { Product } from '@/api/services/products'
+import { ProductService } from '@/api/services/products'
 
 export interface State {
-  product: Product | null
-  transaction: Transaction | null
+  products: Product[]
+  loading: boolean
+  error: string | null
 }
 
 export default createStore<State>({
   state: {
-    product: null,
-    transaction: null,
+    products: [],
+    loading: false,
+    error: null,
   },
+
   getters: {
-    getProduct: (state: State) => state.product,
-    getTransaction: (state: State) => state.transaction,
+    getProducts: (state: State) => state.products,
+    isLoading: (state: State) => state.loading,
+    getError: (state: State) => state.error,
   },
+
   mutations: {
-    setProduct(state: State, product: Product) {
-      state.product = product
+    setProducts(state: State, products: Product[]) {
+      state.products = products
     },
-    setTransaction(state: State, transaction: Transaction) {
-      state.transaction = transaction
+    setLoading(state: State, loading: boolean) {
+      state.loading = loading
+    },
+    setError(state: State, error: string | null) {
+      state.error = error
     },
   },
-  actions: {},
-  modules: {},
+  actions: {
+    async fetchProducts({ commit }: { commit: Function }) {
+      commit('setLoading', true)
+      commit('setError', null)
+
+      try {
+        const products = await ProductService.getProducts()
+        commit('setProducts', products)
+      } catch (error) {
+        commit('setError', 'Error al cargar los productos')
+        console.error('Error fetching products:', error)
+      } finally {
+        commit('setLoading', false)
+      }
+    },
+  },
 })
