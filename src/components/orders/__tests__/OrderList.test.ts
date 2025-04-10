@@ -90,12 +90,10 @@ describe('OrderList', () => {
 
     const firstOrder = wrapper.findAll('.order-card')[0]
 
-    // Verificar que el texto contiene los precios formateados
     const orderInfoText = firstOrder.find('.order-info').text()
     expect(orderInfoText).toMatch(/Total:\s*\$\s*150\.000/)
     expect(orderInfoText).toMatch(/Impuesto:\s*\$\s*28\.500/)
 
-    // Verificar el precio del producto
     const productPriceText = firstOrder.find('.product-price').text()
     expect(productPriceText).toMatch(/\$\s*75\.000\s*c\/u/)
   })
@@ -125,7 +123,6 @@ describe('OrderList', () => {
     expect(productInfo.find('.product-name').text()).toBe('Producto 1')
     expect(productInfo.find('.product-quantity').text()).toBe('Cantidad: 2')
 
-    // Usar una expresión regular para verificar el precio
     const productPriceText = productInfo.find('.product-price').text()
     expect(productPriceText).toMatch(/\$\s*75\.000\s*c\/u/)
   })
@@ -156,8 +153,7 @@ describe('OrderList', () => {
     const firstOrder = wrapper.findAll('.order-card')[0]
     const orderDate = firstOrder.find('.order-date').text()
 
-    // Verificar que la fecha está formateada en español
     expect(orderDate).toMatch(/\d{1,2} de \w+ de \d{4}/)
-    expect(orderDate).toMatch(/\d{2}:\d{2}/) // Verificar formato de hora
+    expect(orderDate).toMatch(/\d{2}:\d{2}/)
   })
 })

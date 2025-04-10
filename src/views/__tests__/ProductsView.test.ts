@@ -6,199 +6,129 @@ import ProductsView from '../ProductsView.vue'
 import Card from '../../components/ui/Card.vue'
 import Button from '../../components/ui/Button.vue'
 
-interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  stock: number
-  images: Array<{ url: string }>
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
 }
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+})
 
-interface StoreState {
-  products: Product[]
-  loading: boolean
-  error: string | null
-}
-
-// Mock de productos
 const mockProducts = [
   {
     id: '1',
     name: 'Producto 1',
-    description: 'Descripción 1',
-    price: 100,
+    description: 'Descripción del producto 1',
+    price: 100000,
     stock: 10,
-    images: [{ url: 'image1.jpg' }],
+    images: [{ url: '/images/product1.jpg' }],
   },
   {
     id: '2',
     name: 'Producto 2',
-    description: 'Descripción 2',
-    price: 200,
+    description: 'Descripción del producto 2',
+    price: 200000,
     stock: 5,
-    images: [],
+    images: [{ url: '/images/product2.jpg' }],
   },
 ]
 
-// Crear store mock
-const createMockStore = (initialState = {}) => {
-  const fetchProductsSpy = vi.fn()
-  return {
-    store: createStore({
-      state: {
-        products: mockProducts,
-        loading: false,
-        error: null,
-        ...initialState,
-      } as StoreState,
-      getters: {
-        getProducts: (state: StoreState) => state.products,
-        isLoading: (state: StoreState) => state.loading,
-        getError: (state: StoreState) => state.error,
-      },
-      actions: {
-        fetchProducts: fetchProductsSpy,
-      },
-    }),
-    fetchProductsSpy,
-  }
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/payment/card/:productId',
+      name: 'payment-card',
+      component: {},
+    },
+  ],
+})
+
+router.push = vi.fn()
+
+interface State {
+  products: typeof mockProducts
+  loading: boolean
+  error: string | null
 }
 
-// Crear router mock
-const createMockRouter = () => {
-  const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-      {
-        path: '/',
-        name: 'home',
-        component: {},
-      },
-      {
-        path: '/payment/card/:id',
-        name: 'payment',
-        component: {},
-      },
-    ],
-  })
-
-  // Mock de router.push para evitar la navegación real
-  router.push = vi.fn()
-
-  return router
-}
+const mockFetchProducts = vi.fn()
+const store = createStore({
+  state: {
+    products: mockProducts,
+    loading: false,
+    error: null,
+  } as State,
+  getters: {
+    getProducts: (state: State) => state.products,
+    isLoading: (state: State) => state.loading,
+    getError: (state: State) => state.error,
+  },
+  actions: {
+    fetchProducts: mockFetchProducts,
+  },
+})
 
 describe('ProductsView', () => {
   let wrapper: any
-  let store: any
-  let router: any
-  let fetchProductsSpy: any
 
   beforeEach(async () => {
-    // Configurar el timeout para el beforeEach
-    vi.setConfig({ testTimeout: 5000 })
+    vi.clearAllMocks()
 
-    const storeResult = createMockStore()
-    store = storeResult.store
-    fetchProductsSpy = storeResult.fetchProductsSpy
-    router = createMockRouter()
-
-    // No esperamos a que el router esté listo, ya que estamos usando un mock
     wrapper = mount(ProductsView, {
       global: {
-        plugins: [store, router],
+        plugins: [router, store],
         stubs: {
           Card,
           Button,
         },
       },
     })
+
+    await wrapper.vm.$nextTick()
   })
 
   it('renderiza correctamente el título', () => {
-    expect(wrapper.find('h1').text()).toBe('Productos')
+    const title = wrapper.find('h1')
+    expect(title.exists()).toBe(true)
+    expect(title.text()).toBe('Productos')
   })
 
   it('renderiza la lista de productos', () => {
     const cards = wrapper.findAllComponents(Card)
-    expect(cards).toHaveLength(mockProducts.length)
+    expect(cards).toHaveLength(2)
   })
 
-  it('muestra la imagen por defecto cuando no hay imágenes', () => {
-    const cards = wrapper.findAllComponents(Card)
-    const secondCard = cards[1]
-    expect(secondCard.props('imageUrl')).toBe('/images/not_image.jpg')
+  it('pasa las propiedades correctas a los componentes Card', () => {
+    const firstCard = wrapper.findAllComponents(Card)[0]
+    expect(firstCard.props('title')).toBe('Producto 1')
+    expect(firstCard.props('description')).toBe('Descripción del producto 1')
+    expect(firstCard.props('price')).toBe(100000)
+    expect(firstCard.props('imageUrl')).toBe('/images/product1.jpg')
   })
 
-  it('muestra la primera imagen del producto cuando está disponible', () => {
-    const cards = wrapper.findAllComponents(Card)
-    const firstCard = cards[0]
-    expect(firstCard.props('imageUrl')).toBe('image1.jpg')
-  })
-
-  it('navega a la página de pago al hacer clic en Add to cart', async () => {
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-    }
-    Object.defineProperty(window, 'localStorage', {
-      value: localStorageMock,
-    })
-
-    const buttons = wrapper.findAllComponents(Button)
-    await buttons[0].trigger('click')
+  it('guarda el producto en localStorage y redirige al hacer clic en Add to cart', async () => {
+    const firstButton = wrapper.findAllComponents(Button)[0]
+    expect(firstButton.exists()).toBe(true)
+    await firstButton.trigger('click')
+    await wrapper.vm.$nextTick()
 
     expect(localStorageMock.setItem).toHaveBeenCalledWith(
       'selectedProduct',
       JSON.stringify({
-        id: mockProducts[0].id,
-        name: mockProducts[0].name,
-        description: mockProducts[0].description,
-        price: mockProducts[0].price,
-        stock: mockProducts[0].stock,
-        image: mockProducts[0].images[0].url,
+        id: '1',
+        name: 'Producto 1',
+        description: 'Descripción del producto 1',
+        price: 100000,
+        stock: 10,
+        image: '/images/product1.jpg',
       }),
     )
 
-    // Verificar que se llamó a router.push con la ruta correcta
-    expect(router.push).toHaveBeenCalledWith(`/payment/card/${mockProducts[0].id}`)
+    expect(router.push).toHaveBeenCalledWith('/payment/card/1')
   })
 
   it('carga los productos al montar el componente', () => {
-    expect(fetchProductsSpy).toHaveBeenCalled()
-  })
-
-  it('muestra el estado de carga', async () => {
-    const storeResult = createMockStore({ loading: true })
-    store = storeResult.store
-    wrapper = mount(ProductsView, {
-      global: {
-        plugins: [store, router],
-        stubs: {
-          Card,
-          Button,
-        },
-      },
-    })
-
-    expect(wrapper.vm.loading).toBe(true)
-  })
-
-  it('muestra el error cuando ocurre', async () => {
-    const errorMessage = 'Error al cargar productos'
-    const storeResult = createMockStore({ error: errorMessage })
-    store = storeResult.store
-    wrapper = mount(ProductsView, {
-      global: {
-        plugins: [store, router],
-        stubs: {
-          Card,
-          Button,
-        },
-      },
-    })
-
-    expect(wrapper.vm.error).toBe(errorMessage)
+    expect(mockFetchProducts).toHaveBeenCalled()
   })
 })

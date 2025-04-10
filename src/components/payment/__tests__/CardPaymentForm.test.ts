@@ -6,7 +6,6 @@ describe('CardPaymentForm', () => {
   it('renderiza correctamente el formulario', () => {
     const wrapper = mount(CardPaymentForm)
 
-    // Verificar que los campos del formulario existen
     expect(wrapper.find('#cardNumber').exists()).toBe(true)
     expect(wrapper.find('#expiryDate').exists()).toBe(true)
     expect(wrapper.find('#cvc').exists()).toBe(true)
@@ -19,7 +18,6 @@ describe('CardPaymentForm', () => {
   it('inicializa con valores por defecto', () => {
     const wrapper = mount(CardPaymentForm)
 
-    // Verificar valores iniciales
     expect(wrapper.vm.formData.cardNumber).toBe('')
     expect(wrapper.vm.formData.expiryDate).toBe('')
     expect(wrapper.vm.formData.cvc).toBe('')
@@ -33,10 +31,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cardNumberInput = wrapper.find('#cardNumber')
 
-    // Simular entrada de número de tarjeta
     await cardNumberInput.setValue('4111111111111111')
 
-    // Verificar que se formatea correctamente (con espacios cada 4 dígitos)
     expect(wrapper.vm.formData.cardNumber).toBe('4111 1111 1111 1111')
   })
 
@@ -44,10 +40,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const expiryDateInput = wrapper.find('#expiryDate')
 
-    // Simular entrada de fecha de expiración
     await expiryDateInput.setValue('1225')
 
-    // Verificar que se formatea correctamente (MM/YY)
     expect(wrapper.vm.formData.expiryDate).toBe('12/25')
   })
 
@@ -55,10 +49,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cvcInput = wrapper.find('#cvc')
 
-    // Simular entrada de CVC
     await cvcInput.setValue('123')
 
-    // Verificar que se formatea correctamente (solo números)
     expect(wrapper.vm.formData.cvc).toBe('123')
   })
 
@@ -66,10 +58,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cardNameInput = wrapper.find('#cardName')
 
-    // Simular entrada de nombre de tarjeta
     await cardNameInput.setValue('juan perez')
 
-    // Verificar que se formatea correctamente (mayúsculas)
     expect(wrapper.vm.formData.cardName).toBe('JUAN PEREZ')
   })
 
@@ -77,10 +67,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cardNumberInput = wrapper.find('#cardNumber')
 
-    // Simular entrada de número de tarjeta Visa
     await cardNumberInput.setValue('4111111111111111')
 
-    // Verificar que se detecta como Visa
     expect(wrapper.vm.cardType).toBe('visa')
   })
 
@@ -88,10 +76,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cardNumberInput = wrapper.find('#cardNumber')
 
-    // Simular entrada de número de tarjeta Mastercard
     await cardNumberInput.setValue('5111111111111111')
 
-    // Verificar que se detecta como Mastercard
     expect(wrapper.vm.cardType).toBe('mastercard')
   })
 
@@ -99,10 +85,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cardNumberInput = wrapper.find('#cardNumber')
 
-    // Simular entrada de número de tarjeta Visa
     await cardNumberInput.setValue('4111111111111111')
 
-    // Verificar que se muestra el icono de Visa
     expect(wrapper.find('img[alt="Visa"]').exists()).toBe(true)
     expect(wrapper.find('img[alt="Mastercard"]').exists()).toBe(false)
   })
@@ -111,10 +95,8 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const cardNumberInput = wrapper.find('#cardNumber')
 
-    // Simular entrada de número de tarjeta Mastercard
     await cardNumberInput.setValue('5111111111111111')
 
-    // Verificar que se muestra el icono de Mastercard
     expect(wrapper.find('img[alt="Mastercard"]').exists()).toBe(true)
     expect(wrapper.find('img[alt="Visa"]').exists()).toBe(false)
   })
@@ -122,27 +104,22 @@ describe('CardPaymentForm', () => {
   it('valida correctamente los términos y condiciones', async () => {
     const wrapper = mount(CardPaymentForm)
 
-    // Verificar que la validación falla cuando no se aceptan los términos
     expect(wrapper.vm.validateTerms()).toBe(false)
 
-    // Aceptar los términos usando los checkboxes directamente
     const termsCheckbox = wrapper.find('#termsAndConditions')
     const dataProcessingCheckbox = wrapper.find('#dataProcessing')
 
     await termsCheckbox.setValue(true)
     await dataProcessingCheckbox.setValue(true)
 
-    // Verificar que la validación pasa cuando se aceptan los términos
     expect(wrapper.vm.validateTerms()).toBe(true)
   })
 
   it('emite una notificación cuando no se aceptan los términos', async () => {
     const wrapper = mount(CardPaymentForm)
 
-    // Llamar directamente al método validateTerms
     wrapper.vm.validateTerms()
 
-    // Verificar que se emite la notificación correcta
     expect(wrapper.emitted('showNotification')).toBeTruthy()
     expect(wrapper.emitted('showNotification')?.[0]).toEqual([
       'Debes aceptar los términos y condiciones y la política de privacidad para continuar',
@@ -153,13 +130,10 @@ describe('CardPaymentForm', () => {
     const wrapper = mount(CardPaymentForm)
     const installmentsSelect = wrapper.find('#installments')
 
-    // Verificar que hay 12 opciones de cuotas
     expect(installmentsSelect.findAll('option').length).toBe(12)
 
-    // Verificar que la primera opción es "1 cuota"
     expect(installmentsSelect.findAll('option')[0].text()).toBe('1 cuota')
 
-    // Verificar que la segunda opción es "2 cuotas"
     expect(installmentsSelect.findAll('option')[1].text()).toBe('2 cuotas')
   })
 })

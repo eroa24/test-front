@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
 import Navbar from '../Navbar.vue'
 
-// Crear un router de prueba
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -28,7 +27,6 @@ describe('Navbar', () => {
       },
     })
 
-    // Esperar a que el router se inicialice
     await router.isReady()
 
     expect(wrapper.find('.navbar').exists()).toBe(true)
@@ -44,13 +42,11 @@ describe('Navbar', () => {
       },
     })
 
-    // Esperar a que el router se inicialice
     await router.isReady()
 
     const brandLink = wrapper.find('.brand')
     expect(brandLink.text()).toBe('Mi Tienda')
 
-    // Verificar que el enlace apunta a /products
     const brandHref = brandLink.attributes('href')
     expect(brandHref).toContain('/products')
   })
@@ -62,13 +58,11 @@ describe('Navbar', () => {
       },
     })
 
-    // Esperar a que el router se inicialice
     await router.isReady()
 
     const ordersLink = wrapper.find('.nav-link')
     expect(ordersLink.text()).toBe('Órdenes')
 
-    // Verificar que el enlace apunta a /orders
     const ordersHref = ordersLink.attributes('href')
     expect(ordersHref).toContain('/orders')
   })
@@ -80,7 +74,6 @@ describe('Navbar', () => {
       },
     })
 
-    // Esperar a que el router se inicialice
     await router.isReady()
 
     const navbar = wrapper.find('.navbar')

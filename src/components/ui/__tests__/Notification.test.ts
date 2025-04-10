@@ -11,7 +11,6 @@ describe('Notification', () => {
     duration: 3000,
   }
 
-  // Limpiar el DOM después de cada prueba
   afterEach(() => {
     document.body.innerHTML = ''
   })
@@ -22,7 +21,6 @@ describe('Notification', () => {
       attachTo: document.body,
     })
 
-    // Esperar a que el componente se monte
     await nextTick()
 
     const notification = document.querySelector('.notification')
@@ -42,7 +40,6 @@ describe('Notification', () => {
       attachTo: document.body,
     })
 
-    // Esperar a que el componente se monte
     await nextTick()
 
     const message = document.querySelector('.notification-message')
@@ -61,14 +58,12 @@ describe('Notification', () => {
         attachTo: document.body,
       })
 
-      // Esperar a que el componente se monte
       await nextTick()
 
       const notification = document.querySelector('.notification')
       expect(notification?.classList.contains(type)).toBe(true)
 
       wrapper.unmount()
-      // Limpiar el DOM después de cada iteración
       document.body.innerHTML = ''
     }
   })
@@ -84,7 +79,6 @@ describe('Notification', () => {
       attachTo: document.body,
     })
 
-    // Esperar a que el componente se monte
     await nextTick()
 
     expect(wrapper.emitted('update:modelValue')).toBeFalsy()
@@ -108,7 +102,6 @@ describe('Notification', () => {
       attachTo: document.body,
     })
 
-    // Esperar a que el componente se monte
     await nextTick()
 
     await vi.advanceTimersByTime(3000)
@@ -130,7 +123,6 @@ describe('Notification', () => {
       attachTo: document.body,
     })
 
-    // Esperar a que el componente se monte
     await nextTick()
 
     await wrapper.setProps({ modelValue: false })
@@ -155,7 +147,6 @@ describe('Notification', () => {
     wrapper.unmount()
 
     vi.advanceTimersByTime(3000)
-    // No debería haber errores después de desmontar
 
     vi.useRealTimers()
   })
