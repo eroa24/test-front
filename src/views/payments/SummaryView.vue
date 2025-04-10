@@ -162,7 +162,6 @@ const backToCard = () => {
 const processPayment = async () => {
   loading.value = true
   try {
-    // Preparar los datos para la transacción
     const transactionData = {
       productId: route.params.productId as string,
       quantity: paymentData.value.quantity,

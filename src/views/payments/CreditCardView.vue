@@ -177,7 +177,6 @@ const backToProducts = () => {
 const continueToSummary = async () => {
   if (!cardForm.value || !deliveryForm.value) return
 
-  // Validar términos y condiciones
   if (!cardForm.value.validateTerms()) {
     return
   }
