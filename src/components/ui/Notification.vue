@@ -74,6 +74,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   type: 'info',
   duration: 3000,
+  message: '',
 })
 
 const emit = defineEmits<{

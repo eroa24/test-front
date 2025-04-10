@@ -7,7 +7,7 @@ describe('TextField', () => {
     modelValue: 'test value',
     label: 'Test Label',
     placeholder: 'Test Placeholder',
-    type: 'text',
+    type: 'text' as const,
     error: '',
     success: '',
     hint: 'Test Hint',
@@ -117,5 +117,62 @@ describe('TextField', () => {
     })
     const input = wrapper.find('.text-field__input')
     expect(input.attributes('id')).toMatch(/^text-field-[a-z0-9]{9}$/)
+  })
+
+  it('renderiza correctamente con el tipo por defecto', () => {
+    const wrapper = mount(TextField, {
+      props: { modelValue: '' },
+    })
+    expect(wrapper.find('input').exists()).toBe(true)
+    expect(wrapper.find('input[type="text"]').exists()).toBe(true)
+  })
+
+  it('renderiza correctamente con diferentes tipos', () => {
+    const types = ['text', 'email', 'password', 'number', 'tel', 'url'] as const
+    types.forEach((type) => {
+      const wrapper = mount(TextField, {
+        props: {
+          type,
+          modelValue: '',
+        },
+      })
+      expect(wrapper.find(`input[type="${type}"]`).exists()).toBe(true)
+    })
+  })
+
+  it('renderiza correctamente con el label', () => {
+    const wrapper = mount(TextField, {
+      props: {
+        label: 'Test Label',
+        modelValue: '',
+      },
+    })
+    expect(wrapper.find('label').text()).toBe('Test Label')
+  })
+
+  it('renderiza correctamente con el placeholder', () => {
+    const wrapper = mount(TextField, {
+      props: {
+        placeholder: 'Test Placeholder',
+        modelValue: '',
+      },
+    })
+    expect(wrapper.find('input').attributes('placeholder')).toBe('Test Placeholder')
+  })
+
+  it('emite el evento input cuando se modifica el valor', async () => {
+    const wrapper = mount(TextField, {
+      props: { modelValue: '' },
+    })
+    await wrapper.find('input').setValue('test value')
+    expect(wrapper.emitted('input')).toBeTruthy()
+  })
+
+  it('emite el evento blur cuando el input pierde el foco', async () => {
+    const wrapper = mount(TextField, {
+      props: { modelValue: '' },
+    })
+    await wrapper.find('input').trigger('blur')
+    expect(wrapper.emitted('blur')).toBeTruthy()
   })
 })

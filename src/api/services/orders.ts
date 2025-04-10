@@ -26,6 +26,14 @@ export interface Order {
   lastFour: string | null
   tax: number | null
   transactionProducts: OrderProduct[]
+  delivery?: {
+    status: string
+    deliveryAddress: string
+    city: string
+    postalCode: string
+    trackingNumber?: string
+    estimatedDeliveryDate?: string
+  }
 }
 
 export interface OrdersResponse {

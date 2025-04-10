@@ -32,7 +32,7 @@ export interface TransactionData {
 export interface TransactionResponse {
   success: boolean
   data: {
-    transactionId: string
+    id: string
     status: 'PENDING' | 'COMPLETED' | 'FAILED'
     createdAt: string
     updatedAt: string

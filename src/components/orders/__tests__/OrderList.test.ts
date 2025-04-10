@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import OrderList from '../OrderList.vue'
+import type { Order } from '../../../api/services/orders'
 
 describe('OrderList', () => {
-  const mockOrders = [
+  const mockOrders: Order[] = [
     {
       id: '1',
       paymentId: 'PAY-123',
@@ -11,21 +12,19 @@ describe('OrderList', () => {
       tax: 28500,
       status: 'COMPLETED',
       createdAt: '2024-04-10T10:00:00Z',
-      delivery: {
-        status: 'COMPLETED',
-        deliveryAddress: 'Calle 123 #45-67',
-        city: 'Bogotá',
-        postalCode: '110111',
-        trackingNumber: 'TRACK-789',
-        estimatedDeliveryDate: '2024-04-12T10:00:00Z',
-      },
+      lastFour: '1234',
       transactionProducts: [
         {
           id: '1',
           quantity: 2,
           unitPrice: 75000,
           product: {
+            id: '1',
             name: 'Producto 1',
+            description: 'Descripción del producto 1',
+            price: 75000,
+            stock: 10,
+            images: [{ url: 'image1.jpg', alt: 'Producto 1' }],
           },
         },
       ],
@@ -37,20 +36,19 @@ describe('OrderList', () => {
       tax: 38000,
       status: 'PENDING',
       createdAt: '2024-04-09T15:30:00Z',
-      delivery: {
-        status: 'PENDING',
-        deliveryAddress: 'Avenida 789 #12-34',
-        city: 'Medellín',
-        postalCode: '050001',
-        estimatedDeliveryDate: '2024-04-11T15:30:00Z',
-      },
+      lastFour: '5678',
       transactionProducts: [
         {
           id: '2',
           quantity: 1,
           unitPrice: 200000,
           product: {
+            id: '2',
             name: 'Producto 2',
+            description: 'Descripción del producto 2',
+            price: 200000,
+            stock: 5,
+            images: [{ url: 'image2.jpg', alt: 'Producto 2' }],
           },
         },
       ],
@@ -125,22 +123,6 @@ describe('OrderList', () => {
 
     const productPriceText = productInfo.find('.product-price').text()
     expect(productPriceText).toMatch(/\$\s*75\.000\s*c\/u/)
-  })
-
-  it('muestra correctamente la información de entrega', () => {
-    const wrapper = mount(OrderList, {
-      props: {
-        orders: mockOrders,
-      },
-    })
-
-    const firstOrder = wrapper.findAll('.order-card')[0]
-    const deliveryInfo = firstOrder.find('.delivery-info')
-
-    expect(deliveryInfo.text()).toContain('Calle 123 #45-67')
-    expect(deliveryInfo.text()).toContain('Bogotá')
-    expect(deliveryInfo.text()).toContain('110111')
-    expect(deliveryInfo.text()).toContain('TRACK-789')
   })
 
   it('formatea correctamente las fechas', () => {

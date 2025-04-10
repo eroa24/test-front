@@ -25,19 +25,32 @@
 
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+// @ts-ignore
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
+
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  stock: number
+  images?: Array<{
+    url: string
+    alt: string
+  }>
+}
 
 const router = useRouter()
 const store = useStore()
 
-const products = computed(() => store.getters.getProducts)
+const products = computed<Product[]>(() => store.getters.getProducts)
 const loading = computed(() => store.getters.isLoading)
 const error = computed(() => store.getters.getError)
 
-const getProductImage = (product: any) => {
+const getProductImage = (product: Product) => {
   return product.images?.[0]?.url || '/images/not_image.jpg'
 }
 
@@ -46,7 +59,7 @@ onMounted(async () => {
 })
 
 const gotoPayment = (productId: string) => {
-  const product = products.value.find((p) => p.id === productId)
+  const product = products.value.find((p: Product) => p.id === productId)
   if (product) {
     localStorage.setItem(
       'selectedProduct',
