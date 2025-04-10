@@ -1,39 +1,51 @@
-# .
+# Proyecto de Prueba Técnica - Proceso de Pago con Wompi
 
-This template should help get you started developing with Vue 3 in Vite.
+## Características Principales
 
-## Recommended IDE Setup
+- Visualización de productos con inventario disponible
+- Proceso de pago con tarjeta de crédito
+- Validación de datos de tarjeta (soporte para MasterCard y VISA)
+- Recolección de información de entrega
+- Resumen de pago con desglose de costos
+- Integración con API de Wompi para procesamiento de pagos
+- Actualización de inventario después de transacciones exitosas
+- Interfaz responsive centrada en diseño móvil
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Tecnologías Utilizadas
 
-## Type Support for `.vue` Imports in TS
+### Frontend
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- Vue.js (SPA)
+- Vuex para gestión de estado
+- CSS con Flexbox/Grid
+- Jest para pruebas unitarias
 
-## Customize configuration
+## Configuración del Proyecto
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+### Instalación de Dependencias
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Compilación y Hot-Reload para Desarrollo
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+### Verificación de Tipos, Compilación y Minificación para Producción
 
 ```sh
 npm run build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+### Ejecutar Pruebas Unitarias con [Vitest](https://vitest.dev/)
 
 ```sh
 npm run test:unit
 ```
+
+## Personalización de la Configuración
+
+Consulta la [Referencia de Configuración de Vite](https://vite.dev/config/).
